@@ -1,0 +1,125 @@
+
+
+
+.event-slider {
+    max-width: 100%;
+    padding: 20px;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    top: 80%;
+    left: 50%;
+  
+  }
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.sport-select {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sport-select select {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+}
+
+.event-slide {
+  padding: 10px;
+}
+
+.event-slide img {
+ 
+ 
+  width: 100%;
+  height: 50%;         
+  object-fit: cover;    
+}
+
+
+.event-info {
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 0 0 10px 10px;
+}
+
+.event-year, .event-month {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: white;
+  color: #4a0e82;
+  border-radius: 10px;
+  margin-right: 5px;
+  font-size: 0.8em;
+}
+
+.event-info h3 {
+  margin: 10px 0;
+}
+
+.event-info button {
+  background-color: #561558;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #5f5d60;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 300px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.close {
+  color: #ff9500;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal-content img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  height: auto;         
+}
+
+.join-button {
+  background-color: #69167d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto 0;
+}
