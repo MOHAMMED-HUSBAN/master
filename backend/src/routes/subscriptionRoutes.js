@@ -3,9 +3,8 @@ const router = express.Router();
 const subscriptionController = require('../controllers/subscriptionController');
 const auth = require('../middleware/auth');
 
-router.get('/', subscriptionController.getAllSubscriptions);
+router.post('/create', auth, subscriptionController.createSubscription);
+router.post('/process-payment', auth, subscriptionController.processPayment);
 router.get('/user-subscriptions', auth, subscriptionController.getUserSubscriptions);
-router.post('/create-paypal-order', auth, subscriptionController.createPayPalOrder);
-router.post('/capture-payment', auth, subscriptionController.capturePayment);
 
-module.exports = router;
+module.exports = router; 

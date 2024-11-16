@@ -2,7 +2,7 @@
 
 import React from "react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Header from "./componants/Header";
 import Footer from "./componants/Footer";
 import HeroSection from "./componants/HeroSection";
@@ -30,141 +30,168 @@ import Welcome from "./componants/welcome/welcome";
 
 import SubscriptionPage from "./pages/SubscriptionPage";
 import axios from "axios";
+import { PayPalScriptProvider } from '@paypal/react-paypal-js';
+import ErrorBoundary from '../hu';
+import { Provider } from 'react-redux';
+import store  from '../src/store/store';  // استخدم import مباشر بدلاً من default import
+import ContactUs from './componants/ContactUs';
 
 function App() {
+  const paypalOptions = {
+    "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID,
+    currency: "USD",
+    intent: "capture"
+  };
+
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <Header />
-              <HeroSection />
-              <WhatWeOffer />
-              <Program />
-              <Newscard />
-              <ProgramsPage />
-              <Eventslider />
-              <TaekwondoNews />
+    <Provider store={store}>
+      <ErrorBoundary>
+        <PayPalScriptProvider options={paypalOptions}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  <Header />
+                  <HeroSection />
+                  <WhatWeOffer />
+                  <Program />
+                  <Newscard />
+                  <ProgramsPage />
+                  <Eventslider />
+                  <TaekwondoNews />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <>
+                  <Header />
+                  <Aboutus />
+                  <Geolocation />
+                  <Footer />
+                </>
+              }
+            />
+            <Route path="/" element={<WhatWeOffer />} />
+            <Route
+              path="/program-details/:id"
+              element={
+                <ErrorBoundary>
+                  <ProgramDetails />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path="/event"
+              element={
+                <>
+                  <Header />
+                  <Eventslider />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/shop"
+              element={
+                <>
+                  <Header />
+                  <Shop />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/news"
+              element={
+                <>
+                  <Header />
+                  <News />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/Program"
+              element={
+                <>
+                  <Header />
+                  <Program />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/video"
+              element={
+                <>
+                  <Header />
+                  <VideoLessons />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <>
+                  <Header />
+                  <Cart />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/homepage"
+              element={
+                <>
+                  <homepage />
+                </>
+              }
+            />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/champions" element={<TaekwondoChampionsPage />} />
+            <Route path="/ChampionDetails" element={<ChampionDetails />} />
 
-              {/* <VideoLessons /> */}
-              {/* <Geolocation /> */}
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/about"
-          element={
-            <>
-              <Header />
-              <Aboutus />
-              <Geolocation />
-              <Footer />
-            </>
-          }
-        />
-        <Route path="/" element={<WhatWeOffer />} />
-        <Route path="/program-details/:program" element={<ProgramDetails />} />
-        <Route
-          path="/event"
-          element={
-            <>
-              <Header />
-              <Eventslider />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/shop"
-          element={
-            <>
-              <Header />
-              <Shop />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/news"
-          element={
-            <>
-              <Header />
-              <News />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/Program"
-          element={
-            <>
-              <Header />
-              <Program />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/video"
-          element={
-            <>
-              <Header />
-              <VideoLessons />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/cart"
-          element={
-            <>
-              <Header />
-              <Cart />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/homepage"
-          element={
-            <>
-              <homepage />
-            </>
-          }
-        />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/champions" element={<TaekwondoChampionsPage />} />
-        <Route path="/ChampionDetails" element={<ChampionDetails />} />
-
-        <Route
-          path="/welcome"
-          element={
-            <>
-              <Header />
-              <Welcome />
-              <Footer />
-
-            
-            </>
-          }
-        />
-          <Route
-                path="/subscriptions"
-                element={
-                  <>
-                    <Header />
-                    <SubscriptionPage />
-                    <Footer />
-                  </>
-                }
-              />
-      </Routes>
-    </Router>
+            <Route
+              path="/welcome"
+              element={
+                <>
+                  <Header />
+                  <Welcome />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/subscriptions"
+              element={
+                <>
+                  <Header />
+                  <SubscriptionPage />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/contact"
+              element={
+                <>
+                  <Header />
+                  <ContactUs />
+                  <Footer />
+                </>
+              }
+            />
+          </Routes>
+        </PayPalScriptProvider>
+      </ErrorBoundary>
+    </Provider>
   );
 }
 axios.interceptors.request.use(

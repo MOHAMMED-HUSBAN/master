@@ -1,163 +1,176 @@
-// import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-// export const submitRegistration = createAsyncThunk('registration/submit', async (registrationData) => {
-//   const response = await fetch('http://localhost:5000/api/registrations', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify(registrationData),
-//   });
-//   return response.json();
-// });
-
-// const registrationSlice = createSlice({
-//   name: 'registration',
-//   initialState: {
-//     registration: [], // Initialize as an array
-//     status: 'idle',
-//     error: null,
-//   },
-//   reducers: {},
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(submitRegistration.pending, (state) => {
-//         state.status = 'loading';
-//       })
-//       .addCase(submitRegistration.fulfilled, (state, action) => {
-//         state.status = 'succeeded';
-//         state.registration.push(action.payload); // Save the registration info
-//       })
-//       .addCase(submitRegistration.rejected, (state, action) => {
-//         state.status = 'failed';
-//         state.error = action.error.message;
-//       });
-//   },
-// });
-
-// export default registrationSlice.reducer;
-// src/slice/registrationSlice.js
-// import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// import { useAuth } from '../context/AuthContext'; // Import the context
-
-// export const submitRegistration = createAsyncThunk(
-//   'registration/submit',
-//   async (registrationData, { rejectWithValue }) => {
-//     const { token } = useAuth(); // Get the token from context
-
-//     try {
-//       const response = await fetch('http://localhost:5000/api/registrations', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': `Bearer ${token}`, // Include the token
-//         },
-//         body: JSON.stringify(registrationData),
-//       });
-
-//       if (!response.ok) {
-//         const errorResponse = await response.json();
-//         return rejectWithValue(errorResponse.msg || 'Failed to submit registration');
-//       }
-
-//       const data = await response.json();
-//       return data; // Return the data you want to store in Redux
-//     } catch (error) {
-//       return rejectWithValue(error.message);
-//     }
-//   }
-// );
-
-// const registrationSlice = createSlice({
-//   name: 'registration',
-//   initialState: {
-//     registration: [],
-//     loading: false,
-//     error: null,
-//   },
-//   reducers: {
-//     // Your other reducers can go here if needed
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(submitRegistration.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(submitRegistration.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.registration.push(action.payload); // Add the new registration to the list
-//       })
-//       .addCase(submitRegistration.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload; // Set the error message
-//       });
-//   },
-// });
-
-// export default registrationSlice.reducer;
-
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Define an async thunk for submitting registration
+// التحقق من حالة تسجيل الدخول
+const checkAuthStatus = () => {
+  const token = localStorage.getItem('token');
+  return !!token;
+};
+
+// إرسال التسجيل
 export const submitRegistration = createAsyncThunk(
   'registration/submit',
-  async (registrationData, { rejectWithValue }) => {
+  async (registrationData, { getState, rejectWithValue }) => {
     try {
-      // Retrieve the token from local storage
-      const token = localStorage.getItem('token');
+      const { auth } = getState();
+      const token = auth.token;
 
       if (!token) {
-        throw new Error('No token found, please log in again');
+        return rejectWithValue('يجب تسجيل الدخول أولاً');
       }
 
-      const response = await axios.post(
-        `http://localhost:5000/api/registrations`,
-        registrationData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-auth-token': token, // Add token to headers
-          },
-          withCredentials: true, // Include credentials if required
-        }
-      );
+      const response = await fetch('http://localhost:5000/api/WhatWeOffer2/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(registrationData),
+      });
 
-      return response.data;
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData.message);
+      }
+
+      const data = await response.json();
+      return data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Server error');
+      return rejectWithValue(error.message);
     }
   }
 );
 
+// معالجة الدفع
+export const processPayment = createAsyncThunk(
+  'registration/payment',
+  async (paymentData, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
 
-// Create a slice for registration
+      const response = await fetch('http://localhost:5000/api/WhatWeOffer2/process-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(paymentData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData.message);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// جلب تسجيلات المستخدم
+export const fetchUserRegistrations = createAsyncThunk(
+  'registration/fetchUserRegistrations',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+
+      const response = await fetch('http://localhost:5000/api/WhatWeOffer2/user-registrations', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData.message);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const registrationSlice = createSlice({
   name: 'registration',
   initialState: {
-    registration: [],
+    registrations: [],
+    currentRegistration: null,
     loading: false,
     error: null,
+    paymentStatus: null,
+    userRegistrations: [],
   },
   reducers: {
-    // Your other reducers can go here if needed
+    clearError: (state) => {
+      state.error = null;
+    },
+    resetRegistration: (state) => {
+      state.currentRegistration = null;
+      state.error = null;
+      state.paymentStatus = null;
+    },
+    updatePaymentStatus: (state, action) => {
+      state.paymentStatus = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
+      // التسجيل
       .addCase(submitRegistration.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(submitRegistration.fulfilled, (state, action) => {
         state.loading = false;
-        state.registration.push(action.payload); // Add the new registration to the list
+        state.registrations.push(action.payload);
+        state.currentRegistration = action.payload;
+        state.error = null;
       })
       .addCase(submitRegistration.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload; // Set the error message
+        state.error = action.payload || 'فشل في التسجيل';
+      })
+      // الدفع
+      .addCase(processPayment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(processPayment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.paymentStatus = 'success';
+        if (state.currentRegistration) {
+          state.currentRegistration.paymentStatus = 'completed';
+        }
+        state.error = null;
+      })
+      .addCase(processPayment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'فشل في عملية الدفع';
+        state.paymentStatus = 'failed';
+      })
+      // جلب تسجيلات المستخدم
+      .addCase(fetchUserRegistrations.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserRegistrations.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userRegistrations = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchUserRegistrations.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'فشل في جلب التسجيلات';
       });
   },
 });
 
+export const { clearError, resetRegistration, updatePaymentStatus } = registrationSlice.actions;
 export default registrationSlice.reducer;

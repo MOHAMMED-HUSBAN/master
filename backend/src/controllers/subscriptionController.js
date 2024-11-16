@@ -1,107 +1,75 @@
 const Subscription = require('../models/Subscription');
-const UserSubscription = require('../models/UserSubscription');
-const User = require('../models/User');
-const paypal = require('@paypal/checkout-server-sdk');
+const Program = require('../models/Program');
 
-// PayPal configuration
-let clientId = "YOUR_PAYPAL_CLIENT_ID";
-let clientSecret = "YOUR_PAYPAL_CLIENT_SECRET";
-let environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
-let client = new paypal.core.PayPalHttpClient(environment);
+exports.createSubscription = async (req, res) => {
+  try {
+    const { programId } = req.body;
+    const userId = req.user.id; // من middleware المصادقة
 
-const subscriptionController = {
-  // Get all available subscriptions
-  getAllSubscriptions: async (req, res) => {
-    try {
-      const subscriptions = await Subscription.find();
-      res.json(subscriptions);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+    // التحقق من وجود البرنامج
+    const program = await Program.findById(programId);
+    if (!program) {
+      return res.status(404).json({ message: 'البرنامج غير موجود' });
     }
-  },
 
-  // Create PayPal order
-  createPayPalOrder: async (req, res) => {
-    try {
-      const { subscriptionId } = req.body;
-      const subscription = await Subscription.findById(subscriptionId);
-      
-      if (!subscription) {
-        return res.status(404).json({ message: "Subscription not found" });
-      }
+    // حساب تاريخ انتهاء الاشتراك (مثال: شهر واحد)
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + program.duration);
 
-      const request = new paypal.orders.OrdersCreateRequest();
-      request.prefer("return=representation");
-      request.requestBody({
-        intent: "CAPTURE",
-        purchase_units: [{
-          amount: {
-            currency_code: "USD",
-            value: subscription.price.toString()
-          },
-          description: `${subscription.name} Taekwondo Subscription`
-        }]
-      });
+    // إنشاء اشتراك جديد
+    const subscription = new Subscription({
+      userId,
+      programId,
+      endDate,
+      amount: program.price
+    });
 
-      const order = await client.execute(request);
-      res.json({ orderId: order.result.id });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
+    await subscription.save();
 
-  // Capture PayPal payment and create subscription
-  capturePayment: async (req, res) => {
-    try {
-      const { orderId, subscriptionId } = req.body;
-      const userId = req.user.id; // From auth middleware
-
-      const request = new paypal.orders.OrdersCaptureRequest(orderId);
-      const capture = await client.execute(request);
-
-      if (capture.result.status === "COMPLETED") {
-        const subscription = await Subscription.findById(subscriptionId);
-        
-        // Calculate end date based on subscription duration
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setMonth(endDate.getMonth() + subscription.durationInMonths);
-
-        const userSubscription = new UserSubscription({
-          userId,
-          subscriptionId,
-          startDate,
-          endDate,
-          paymentStatus: 'completed',
-          paypalOrderId: orderId
-        });
-
-        await userSubscription.save();
-        res.json({ 
-          message: "Subscription activated successfully",
-          subscription: userSubscription 
-        });
-      } else {
-        res.status(400).json({ message: "Payment failed" });
-      }
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
-
-  // Get user's active subscriptions
-  getUserSubscriptions: async (req, res) => {
-    try {
-      const userId = req.user.id;
-      const subscriptions = await UserSubscription.find({ 
-        userId,
-        endDate: { $gte: new Date() }
-      }).populate('subscriptionId');
-      res.json(subscriptions);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
+    res.status(201).json({
+      success: true,
+      subscription,
+      message: 'تم إنشاء الاشتراك بنجاح'
+    });
+  } catch (error) {
+    console.error('Error creating subscription:', error);
+    res.status(500).json({ message: 'حدث خطأ في إنشاء الاشتراك' });
   }
 };
 
-module.exports = subscriptionController;
+exports.processPayment = async (req, res) => {
+  try {
+    const { subscriptionId, paymentId } = req.body;
+
+    const subscription = await Subscription.findById(subscriptionId);
+    if (!subscription) {
+      return res.status(404).json({ message: 'الاشتراك غير موجود' });
+    }
+
+    subscription.paymentStatus = 'completed';
+    subscription.paymentId = paymentId;
+    await subscription.save();
+
+    res.json({
+      success: true,
+      message: 'تم معالجة الدفع بنجاح'
+    });
+  } catch (error) {
+    console.error('Payment processing error:', error);
+    res.status(500).json({ message: 'حدث خطأ في معالجة الدفع' });
+  }
+};
+
+exports.getUserSubscriptions = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const subscriptions = await Subscription.find({ userId })
+      .populate('programId')
+      .sort('-createdAt');
+
+    res.json(subscriptions);
+  } catch (error) {
+    console.error('Error fetching subscriptions:', error);
+    res.status(500).json({ message: 'حدث خطأ في جلب الاشتراكات' });
+  }
+}; 

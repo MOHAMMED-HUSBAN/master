@@ -1,203 +1,94 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { subscriptionService } from '../services/subscriptionService';
 
-const Alert = ({ type, title, message }) => (
-  <div className={`p-4 mb-4 rounded-lg ${
-    type === 'error' ? 'bg-red-50 text-red-800 border border-red-300' :
-    type === 'success' ? 'bg-green-50 text-green-800 border border-green-300' :
-    'bg-blue-50 text-blue-800 border border-blue-300'
+const Alert = ({ type, message }) => (
+  <div className={`p-4 mb-4 rounded ${
+    type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
   }`}>
-    <h3 className="font-bold mb-1">{title}</h3>
-    <p>{message}</p>
+    {message}
   </div>
 );
-
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center min-h-[200px]">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-  </div>
-);
-
-const SubscriptionCard = ({ plan, isSelected, onSelect, loading }) => (
-  <div className={`bg-white rounded-lg shadow-md transition-all duration-300 ${
-    isSelected ? 'ring-2 ring-blue-500' : ''
-  }`}>
-    <div className="p-6 text-center">
-      <h2 className="text-xl font-bold mb-4">{plan.name}</h2>
-      <p className="text-3xl font-bold mb-4">${plan.price}</p>
-      {plan.includesUniform && (
-        <p className="text-green-600 mb-4">تشمل بدلة التايكوندو</p>
-      )}
-      <p className="mb-6">{plan.durationInMonths} شهر</p>
-      <button
-        onClick={() => onSelect(plan)}
-        disabled={loading}
-        className={`w-full px-4 py-2 rounded transition-colors duration-300 
-          ${isSelected
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-gray-100 hover:bg-blue-500 hover:text-white'
-          } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-      >
-        {loading ? 'جاري المعالجة...' : 'اختيار الخطة'}
-      </button>
-    </div>
-  </div>
-);
-
-const PaymentSection = ({ selectedPlan, onPaymentSuccess, onPaymentError }) => {
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
-
-  const createPayPalOrder = async () => {
-    try {
-      setPaymentProcessing(true);
-      const { orderId } = await subscriptionService.createPayPalOrder(selectedPlan._id);
-      return orderId;
-    } catch (error) {
-      onPaymentError(error.message);
-      return null;
-    } finally {
-      setPaymentProcessing(false);
-    }
-  };
-
-  const handlePaymentApproval = async (data) => {
-    try {
-      setPaymentProcessing(true);
-      const result = await subscriptionService.capturePayment(data.orderID, selectedPlan._id);
-      onPaymentSuccess(result.subscription);
-    } catch (error) {
-      onPaymentError(error.message);
-    } finally {
-      setPaymentProcessing(false);
-    }
-  };
-
-  return (
-    <div className="mt-8 max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h3 className="text-xl font-bold text-center mb-4">إكمال الدفع</h3>
-      {paymentProcessing && <LoadingSpinner />}
-      <PayPalScriptProvider options={{ 
-        "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-        currency: "USD"
-      }}>
-        <PayPalButtons
-          createOrder={createPayPalOrder}
-          onApprove={handlePaymentApproval}
-          style={{ layout: "vertical" }}
-          disabled={paymentProcessing}
-        />
-      </PayPalScriptProvider>
-    </div>
-  );
-};
 
 const SubscriptionPage = () => {
-  const [subscriptions, setSubscriptions] = useState([]);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [activeSubscription, setActiveSubscription] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const programData = location.state?.program;
 
-  useEffect(() => {
-    const initializePage = async () => {
-      try {
-        setLoading(true);
-        // Fetch subscriptions and user's active subscription in parallel
-        const [subscriptionsData, userSubscriptionData] = await Promise.all([
-          subscriptionService.getAllSubscriptions(),
-          subscriptionService.getUserSubscription()
-        ]);
-        
-        setSubscriptions(subscriptionsData);
-        if (userSubscriptionData && userSubscriptionData.length > 0) {
-          setActiveSubscription(userSubscriptionData[0]);
-        }
-      } catch (error) {
-        setError(error.message);
-        console.error('Error initializing page:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!programData) {
+    return <div className="text-center p-4">برجاء اختيار برنامج للاشتراك</div>;
+  }
 
-    initializePage();
-  }, []);
+  const handlePayment = async (paymentDetails) => {
+    setLoading(true);
+    try {
+      // 1. Create subscription
+      const subscriptionResponse = await subscriptionService.createSubscription(programData.id);
+      
+      // 2. Process payment
+      await subscriptionService.processPayment(
+        subscriptionResponse.subscription._id,
+        paymentDetails
+      );
 
-  const handleSubscriptionSelect = (plan) => {
-    setSelectedPlan(plan);
-    setError(null);
-    setSuccessMessage(null);
+      setSuccess('تم الاشتراك بنجاح!');
+      setTimeout(() => {
+        navigate('/profile');
+      }, 2000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'حدث خطأ في عملية الدفع');
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const handlePaymentSuccess = (subscription) => {
-    setActiveSubscription(subscription);
-    setSelectedPlan(null);
-    setSuccessMessage('تم تفعيل الاشتراك بنجاح!');
-  };
-
-  const handlePaymentError = (errorMessage) => {
-    setError(errorMessage);
-  };
-
-  if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="container mx-auto px-4 py-8" style={{ direction: 'rtl' }}>
-      <h1 className="text-3xl font-bold text-center mb-8">خطط اشتراك التايكوندو</h1>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">تأكيد الاشتراك</h1>
       
-      {error && (
-        <Alert 
-          type="error"
-          title="خطأ"
-          message={error}
-        />
-      )}
+      {error && <Alert type="error" message={error} />}
+      {success && <Alert type="success" message={success} />}
+      {loading && <div className="text-center">جاري معالجة الطلب...</div>}
 
-      {successMessage && (
-        <Alert 
-          type="success"
-          title="تم بنجاح"
-          message={successMessage}
-        />
-      )}
+      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">{programData.name}</h2>
+        <div className="mb-4">
+          <p className="text-gray-600">السعر: ${programData.price}</p>
+          <p className="text-gray-600">المدة: {programData.duration} شهر</p>
+          <p className="text-gray-600">المستوى: {programData.level}</p>
+        </div>
 
-      {activeSubscription && (
-        <Alert 
-          type="info"
-          title="اشتراك نشط"
-          message={`لديك اشتراك نشط حتى ${new Date(activeSubscription.endDate).toLocaleDateString('ar-EG')}`}
-        />
-      )}
-
-      {subscriptions.length === 0 ? (
-        <p className="text-center text-gray-600">لا توجد خطط اشتراك متاحة حالياً</p>
-      ) : (
-        <>
-          <div className="grid md:grid-cols-3 gap-6">
-            {subscriptions.map((plan) => (
-              <SubscriptionCard
-                key={plan._id}
-                plan={plan}
-                isSelected={selectedPlan?._id === plan._id}
-                onSelect={handleSubscriptionSelect}
-                loading={loading}
-              />
-            ))}
-          </div>
-
-          {selectedPlan && (
-            <PaymentSection
-              selectedPlan={selectedPlan}
-              onPaymentSuccess={handlePaymentSuccess}
-              onPaymentError={handlePaymentError}
-            />
-          )}
-        </>
-      )}
+        <PayPalScriptProvider options={{ 
+          "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID 
+        }}>
+          <PayPalButtons
+            createOrder={(data, actions) => {
+              return actions.order.create({
+                purchase_units: [{
+                  amount: {
+                    value: programData.price
+                  }
+                }]
+              });
+            }}
+            onApprove={async (data, actions) => {
+              const order = await actions.order.capture();
+              await handlePayment(order);
+            }}
+            onError={(err) => {
+              setError('حدث خطأ في عملية الدفع');
+              console.error('PayPal Error:', err);
+            }}
+            style={{ layout: "vertical" }}
+          />
+        </PayPalScriptProvider>
+      </div>
     </div>
   );
 };
 
-export default SubscriptionPage;
+export default SubscriptionPage; 

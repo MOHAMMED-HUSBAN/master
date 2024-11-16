@@ -1,12 +1,37 @@
 // src/models/Program.js
 const mongoose = require('mongoose');
 
-const WhatWeOffer2Schema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  price: { type: Number, required: true },
-  image: { type: String, required: true },
+const whatWeOffer2Schema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  duration: {
+    type: String,
+    enum: ['monthly', 'quarterly', 'yearly'],
+    default: 'monthly'
+  },
+  features: [{
+    type: String
+  }],
+  image: {
+    type: String,
+    required: true
+  },
+  category: {
+    type: String,
+    required: true
+  }
+}, {
+  timestamps: true
 });
 
-const WhatWeOffer2 = mongoose.model('WhatWeOffer2', WhatWeOffer2Schema);
-module.exports = WhatWeOffer2;
+module.exports = mongoose.model('WhatWeOffer2', whatWeOffer2Schema);

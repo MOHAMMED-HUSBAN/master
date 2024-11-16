@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/favicon.png';
 import { logout } from '../slice/authSlice'; // Update this path
-import { FaUser } from 'react-icons/fa';
+import { FaUser, FaPhone } from 'react-icons/fa';
 
 
 
@@ -100,6 +99,12 @@ const Header = () => {
 
             {/* <li><Link to="/news" className="block hover:text-purple-300">News</Link></li> */}
             <li><Link to="/about" className="block hover:text-purple-300">About</Link></li>
+            <li>
+              <Link to="/contact" className="block hover:text-purple-300 flex items-center">
+                <FaPhone className="mr-2" />
+                Contact Us
+              </Link>
+            </li>
            
           </ul>
         </nav>
