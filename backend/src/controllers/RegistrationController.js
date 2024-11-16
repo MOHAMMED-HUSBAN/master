@@ -1,21 +1,53 @@
-// src/controllers/RegistrationController.js
 const Registration = require('../models/Registration');
+const Program = require('../models/Program');
 
-// Create a new registration
 exports.createRegistration = async (req, res) => {
-  const { name, email, phone, program } = req.body;
-  const existingRegistration = await Registration.findOne({ $or: [{ email }, { phone }, { name }] });
-  if (existingRegistration) {
-    return res.status(400).json({ message: 'Registration already exists.' });
+  console.log('Registration request received');
+  console.log('Request body:', req.body);
+  console.log('User object:', req.user);
+
+  // Destructure registration data from the request body
+  const { name, email, phone, programId } = req.body;
+
+  // Check if the user is authenticated
+  let userId;
+  if (req.user && req.user.id) {
+    userId = req.user.id;
+  } else {
+    return res.status(401).json({ message: 'User not authenticated' });
   }
 
-
-  const newRegistration = new Registration({ name, email, phone, program });
+  // Validate input data
+  if (!name || !email || !phone || !programId) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
 
   try {
+    // Check if the program exists
+    const program = await Program.findById(programId);
+    if (!program) {
+      return res.status(404).json({ message: 'Program not found' });
+    }
+
+    // Create a new registration entry
+    const newRegistration = new Registration({
+      userId,
+      name,
+      email,
+      phone,
+      program: programId,
+    });
+
+    // Save the registration to the database
     const savedRegistration = await newRegistration.save();
-    res.status(201).json(savedRegistration);
+
+    // Log success
+    console.log('Registration saved successfully:', savedRegistration);
+
+    // Respond with the saved registration data
+    return res.status(201).json(savedRegistration);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error during registration:', error.message); // Log the error
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };

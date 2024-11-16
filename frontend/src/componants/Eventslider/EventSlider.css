@@ -1,16 +1,10 @@
-
-
-
 .event-slider {
-    max-width: 100%;
-    padding: 20px;
-    justify-content: center;
-    color: white;
-    text-align: center;
-    top: 80%;
-    left: 50%;
-  
-  }
+  max-width: 100%;
+  padding: 20px;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
 
 h1 {
   margin-bottom: 20px;
@@ -36,81 +30,86 @@ h1 {
   padding: 10px;
 }
 
-.event-slide img {
- 
- 
+.event-slide .event-img {
   width: 100%;
-  height: 50%;         
-  object-fit: cover;    
+  height: 50%;
+  object-fit: cover;
+  border-radius: 8px;
 }
-
 
 .event-info {
   align-items: center;
   background-color: rgba(0, 0, 0, 0.7);
   padding: 10px;
-  border-radius: 0 0 10px 10px;
+  border-radius: 8px;
 }
 
-.event-year, .event-month {
+.event-year {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 5px 10px;
   background-color: white;
   color: #4a0e82;
   border-radius: 10px;
   margin-right: 5px;
-  font-size: 0.8em;
 }
 
 .event-info h3 {
   margin: 10px 0;
 }
 
-.event-info button {
+.event-details-button {
   background-color: #561558;
   color: white;
   border: none;
-  padding: 5px 15px;
+  padding: 8px 15px;
   border-radius: 20px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.modal {
+.event-details-button:hover {
+  background-color: #87217f;
+}
+
+.modal-overlay {
   position: fixed;
-  z-index: 1;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
   background-color: #5f5d60;
-  margin: 15% auto;
   padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 300px;
   border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
   position: relative;
 }
 
 .close {
   color: #ff9500;
-  float: right;
   font-size: 28px;
   font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 10px;
   cursor: pointer;
 }
 
-.modal-content img {
+.modal-image {
   width: 100%;
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
-  margin-bottom: 20px;
-  height: auto;         
+  margin-bottom: 15px;
 }
 
 .join-button {
@@ -120,6 +119,4 @@ h1 {
   padding: 10px 20px;
   border-radius: 20px;
   cursor: pointer;
-  display: block;
-  margin: 20px auto 0;
 }

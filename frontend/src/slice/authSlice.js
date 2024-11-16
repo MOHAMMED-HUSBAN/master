@@ -19,7 +19,7 @@ export const login = createAsyncThunk('auth/login', async (userData) => {
   localStorage.setItem('token', response.data.token); // Store token in localStorage
   return response.data;
 });
-
+  
 
 
 
@@ -68,24 +68,36 @@ const authSlice = createSlice({
     builder
       .addCase(signup.fulfilled, (state, action) => {
         state.user = action.payload;
+   
       })
       .addCase(login.fulfilled, (state, action) => {
         state.user = action.payload;
       })
       .addCase(loginWithGoogle.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload; // Assuming the response includes a user object
+        state.token = action.payload.token; // Save the token from the response
+        localStorage.setItem('token', action.payload.token); // Store token in localStorage
       })
       .addCase(loginWithFacebook.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload; // Assuming the response includes a user object
+        state.token = action.payload.token; // Save the token from the response
+        localStorage.setItem('token', action.payload.token); // Store token in localStorage
       })
       .addCase(signup.rejected, (state, action) => {
         state.error = action.error.message;
       })
       .addCase(login.rejected, (state, action) => {
         state.error = action.error.message;
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.error = action.error.message; // Set error on Google login failure
+      })
+      .addCase(loginWithFacebook.rejected, (state, action) => {
+        state.error = action.error.message; // Set error on Facebook login failure
       });
   },
 });
 
 export const { logout } = authSlice.actions;
 export default authSlice.reducer;
+

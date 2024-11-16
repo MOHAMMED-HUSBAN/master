@@ -7,6 +7,9 @@ import WhatWeOffer2Reducer from '../slice/WhatWeOffer2Slice';
 import registrationReducer from '../slice/registrationSlice';
 import authReducer from '../slice/authSlice';
 import profileReducer from '../slice/profileSlice';
+import productReducer from '../slice/productSlice';
+import cartReducer from '../slice/cartSlice';
+import eventReducer from '../slice/eventSlice';
 
 
 export const store = configureStore({
@@ -18,5 +21,8 @@ export const store = configureStore({
     registration: registrationReducer,
     auth: authReducer,
     profile: profileReducer,
+    products: productReducer,
+    cart: cartReducer,
+    events: eventReducer,
   },
 });

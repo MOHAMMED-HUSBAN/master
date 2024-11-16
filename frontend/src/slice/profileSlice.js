@@ -29,10 +29,24 @@ export const updateProfile = createAsyncThunk('profile/updateProfile', async (us
 });
 
 
+export const getUserPrograms = createAsyncThunk('profile/getUserPrograms', async (_, { getState }) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': token,
+    },
+  };
+  const response = await axios.get(`${API_URL}/profile/programs`, config);
+  return response.data;
+});
+
+
 const profileSlice = createSlice({
   name: 'profile',
   initialState: {
     user: null,
+    userPrograms: [],
     loading: false,
     error: null,
   },
@@ -58,6 +72,17 @@ const profileSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getUserPrograms.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getUserPrograms.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userPrograms = action.payload;
+      })
+      .addCase(getUserPrograms.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

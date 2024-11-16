@@ -69,9 +69,10 @@ exports.socialLogin = async (req, res) => {
       await user.save();
     }
 
-    const payload = { user: { id: user.id } };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token, userId: user.id });
+    const payload = { user: { id: user._id } };
+    const token = jwt.sign(payload, process.env.JWT_SECRET);
+    res.json({ token, userId: user._id });
+    console.log(user.id);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

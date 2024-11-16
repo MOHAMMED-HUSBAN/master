@@ -1,5 +1,6 @@
 // Backend: New profile controller (controllers/profileController.js)
 const User = require('../models/User');
+const Registration = require('../models/Registration');
 
 exports.getProfile = async (req, res) => {
   try {
@@ -30,6 +31,17 @@ exports.updateProfile = async (req, res) => {
     await user.save();
 
     res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getUserPrograms = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const registrations = await Registration.find({ userId: userId }).populate('program');
+    res.json(registrations);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

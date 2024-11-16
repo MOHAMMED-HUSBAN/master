@@ -1,128 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Card, CardMedia, CardContent, Typography, Button, Pagination, Slider, Box, Drawer, FormControl, InputLabel, Select, MenuItem, List, ListItem, Divider, IconButton } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import Header from '../Header';
-
-const products = [
-  {
-    id: 1,
-    name: "'Tempo' Taekwondo Training Shoes - White/Black",
-    price: 20.00,
-    description: "High-quality training shoes for taekwondo practitioners",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/36_1160x_crop_center.jpg?v=1671120738",
-    category: 'Shoes'
-  },
-  {
-    id: 2,
-    name: "'Vintage' Taekwondo Dobok Uniform - Black/Yellow",
-    price: 30.00,
-    description: "Classic dobok uniform for taekwondo enthusiasts",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/15kD_UVMS8N2cUrL_SpUm3Iiivsj_Sw2g_1160x_crop_center.jpg?v=1666996309",
-    category: 'Uniforms'
-  },
-  {
-    id: 3,
-    name: "'Shield-11' Taekwondo Groin Guard - Male - White/Black",
-    price: 15.00,
-    description: "Protective groin guard for taekwondo training and competition",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/10rNaR47CiRgfA-af_XMA7aLMSb7TJVmc_1160x_crop_center.jpg?v=1666997843",
-    category: 'Protective Gear'
-  },
-  {
-    id: 4,
-    name: "'Shield-11' Taekwondo Foot Guards - White/Black",
-    price: 15.00,
-    description: "Protective foot guards for taekwondo training and competition",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/10Z7ANB54arPjTGagRj-saRNgEF2HimKL_1160x_crop_center.jpg?v=1666997795",
-    category: 'Protective Gear'
-  },
-  {
-    id: 5,
-    name: "'Shield-11' Taekwondo Gloves - White/Black",
-    price: 15.00,
-    description: "Durable gloves for taekwondo training and competition",
-    image: "https://www.2tuf2tap.com/cdn/shop/files/85_8ab7442a-6a16-4bd4-a18a-adfe45f684c2_1160x_crop_center.jpg?v=1704831687",
-    category: 'Protective Gear'
-  },
-  {
-    id: 6,
-    name: "'Fighter' Taekwondo Dobok Uniform - White/Black",
-    price: 45.00,
-    description: "High-quality dobok uniform for taekwondo practitioners",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/15X2OWELQ8TyGOqgE7Gld9pJxa7sQ9n8H_1160x_crop_center.jpg?v=1666996179",
-    category: 'Uniforms'
-  },
-  {
-    id: 7,
-    name: "'Velocity' Taekwondo Training Shoes - White/Black",
-    price: 35.00,
-    description: "High-performance training shoes for taekwondo practitioners",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/26_1160x_crop_center.jpg?v=1671120717",
-    category: 'Shoes'
-  },
-  {
-    id: 8,
-    name: "'Vintage' Taekwondo Dobok Uniform - White/Black",
-    price: 30.00,
-    description: "Classic dobok uniform for taekwondo enthusiasts",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/15aXmvLXw-xtAll1ppE2JIexeuAjGgATU_1160x_crop_center.jpg?v=1666996284",
-    category: 'Uniforms'
-  },
-  {
-    id: 9,
-    name: "'Champion' Taekwondo Dobok Uniform - White/Black",
-    price: 20.00,
-    description: "High-quality dobok uniform for taekwondo practitioners",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/15HSrwo6BRWHVtv3RSXeXWDT2kBrt9auz_1160x_crop_center.jpg?v=1666996155",
-    category: 'Uniforms'
-  },
-  {
-    id: 10,
-    name: "'Start' Taekwondo Dobok Uniform - White/Black",
-    price: 15.00,
-    description: "Entry-level dobok uniform for taekwondo beginners",
-    image: "https://www.2tuf2tap.com/cdn/shop/files/88_1160x_crop_center.jpg?v=1715764986",
-    category: 'Uniforms'
-  },
-  {
-    id: 11,
-    name: "'Jikida' Taekwondo Headguard - Red/White",
-    price: 25.00,
-    description: "High-quality headguard for taekwondo training and competition",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/14mginuRJnHBricBfMesYPMy-lGkh0rG3_1160x_crop_center.jpg?v=1666998184",
-    category: 'Protective Gear'
-  },
-  {
-    id: 12,
-    name: "'Flash' Taekwondo Training Shoes - White/Silver",
-    price: 15.00,
-    description: "High-performance training shoes for taekwondo practitioners",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/Flash--Taekwondo-Training-Shoes---White-Silver-2TUF2TAP-1669037489_1160x_crop_center.jpg?v=1669037490",
-    category: 'Shoes'
-  },
-  {
-    id: 13,
-    name: "'Poomsae Pro' Taekwondo Dobok Uniform - Male - White/Navy",
-    price: 30.00,
-    description: "High-quality dobok uniform for taekwondo practitioners",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/15Yfeo1ct5dPklWU45mjeopvDOszBenrM_1160x_crop_center.jpg?v=1666996257",
-    category: 'Uniforms'
-  },
-  {
-    id: 14,
-    name: "'Jikida' Taekwondo Headguard - White/Black",
-    price: 25.00,
-    description: "High-quality headguard for taekwondo training and competition",
-    image: "https://www.2tuf2tap.com/cdn/shop/products/14P4JudpiukdHU1WD0s7tIZATdvNEgB2z_1160x_crop_center.jpg?v=1666998208",
-    category: 'Protective Gear'
-  }
-];
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { fetchProducts, fetchProductsByCategory } from '../../slice/productSlice';
+import { addToCart } from '../../slice/cartSlice';
 
 const ProductGrid = () => {
+  const dispatch = useDispatch();
+  const products = useSelector(state => state.products.items);
+  const cart = useSelector(state => state.cart.items);
   const [page, setPage] = useState(1);
-  const [priceRange, setPriceRange] = useState([0, 50]);
+  const [priceRange, setPriceRange] = useState([0, 100]);
   const [category, setCategory] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -133,11 +28,22 @@ const ProductGrid = () => {
   };
 
   const handleCategoryChange = (event) => {
-    setCategory(event.target.value);
+    const selectedCategory = event.target.value;
+    setCategory(selectedCategory);
+    if (selectedCategory) {
+      dispatch(fetchProductsByCategory(selectedCategory));
+    } else {
+      dispatch(fetchProducts());
+    }
   };
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
+  };
+
+  
+  const handleAddToCart = (productId) => {
+    dispatch(addToCart({ productId, quantity: 1 }));
   };
 
   const filteredProducts = products.filter((product) => 
@@ -154,8 +60,7 @@ const ProductGrid = () => {
 
   return (
     <>
-      <Header />
-      <Box sx={{ display: 'flex' , paddingTop:'80px' }}>
+      <Box sx={{ display: 'flex', paddingTop: '80px' }}>
         {/* Filter Drawer */}
         <Drawer
           anchor="left"
@@ -242,7 +147,13 @@ const ProductGrid = () => {
                     <Typography variant="body1" color="textPrimary" sx={{ fontWeight: 'bold' }}>
                       ${product.price.toFixed(2)}
                     </Typography>
-                    <Button variant="contained"color="secondary" sx={{ mt: 2 }}>
+                    <Button 
+                      variant="contained"
+                      color="secondary" 
+                      sx={{ mt: 2 }}
+                      onClick={() => handleAddToCart(product.id)}
+                      startIcon={<ShoppingCartIcon />}
+                    >
                       Add to Cart
                     </Button>
                   </CardContent>
@@ -255,7 +166,7 @@ const ProductGrid = () => {
               count={totalPages}
               page={page}
               onChange={handlePageChange}
-             color="secondary"
+              color="secondary"
               siblingCount={1}
               boundaryCount={1}
               shape="rounded"
