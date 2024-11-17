@@ -46,30 +46,28 @@ const Header = () => {
 
 
   return (
-    <div className="relative bg-purple-900">
-      <header className="fixed left-0 w-full z-20 bg-purple-900 bg-opacity-10 text-white p-4 flex justify-between items-center">
+    <div className="relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-black">
+      <header className="fixed left-0 w-full z-20 bg-gradient-to-b from-gray-800/50 to-gray-900/50 backdrop-blur-xl border-b border-gray-800 text-white p-4 flex justify-between items-center">
         <div className="flex items-center">
           <img src={logo} alt="MAHD Sports Academy" className="h-15 w-11 mr-2" />
         </div>
         <div className="flex items-center space-x-4">
           <AuthButton />
           {token && (
-            
-              <Link to="/profile" className="block hover:text-purple-300">
+            <Link to="/profile" className="text-gray-300 hover:text-white transition-colors">
               <FaUser />
-              </Link>
-            
+            </Link>
           )}
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-white focus:outline-none"
+            className="text-gray-300 hover:text-white transition-colors focus:outline-none"
           >
-            <svg className="h-6 w-6 z-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <Link to="/cart" className="relative">
-            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <Link to="/cart" className="text-gray-300 hover:text-white transition-colors">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13L6 17h12l-1-4M9 21h6M9 21a2 2 0 114 0M9 21H7m2 0h6m-8 0a2 2 0 104 0" />
             </svg>
           </Link>
@@ -77,7 +75,9 @@ const Header = () => {
       </header>
       
       
-      <div className={`fixed inset-y-0 right-0 transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition duration-300 ease-in-out bg-purple-800 text-white w-64 p-6 z-30`}>
+      <div className={`fixed inset-y-0 right-0 transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} 
+                      transition duration-300 ease-in-out bg-gradient-to-b from-gray-800/50 to-gray-900/50 
+                      backdrop-blur-xl border-l border-gray-800 text-white w-64 p-6 z-30`}>
         <button 
           onClick={() => setSidebarOpen(false)}
           className="absolute top-4 right-4 text-white"
@@ -88,7 +88,7 @@ const Header = () => {
         </button>
         <nav className="mt-8">
           <ul className="space-y-4">
-            <li><Link to="/" className="block hover:text-purple-300">Home</Link></li>
+            <li><Link to="/" className="block text-gray-300 hover:text-white transition-colors">Home</Link></li>
             <li><Link to="/Welcome" className="block hover:text-purple-300">latest additions</Link></li>
 
           
@@ -110,7 +110,8 @@ const Header = () => {
         </nav>
       </div>
 
-      <div className="fixed left-0 top-1/2 transform -translate-y-1/2 bg-purple-800 p-2 rounded-r-lg z-30">
+      <div className="fixed left-0 top-1/2 transform -translate-y-1/2 bg-gradient-to-b from-gray-800/50 to-gray-900/50 
+                      backdrop-blur-xl border border-gray-800 p-2 rounded-r-lg z-30">
         <div className="space-y-4">
           <a href="#" className="block text-white hover:text-purple-300">
             {/* <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -132,7 +133,7 @@ const Header = () => {
 
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-10"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10"
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}

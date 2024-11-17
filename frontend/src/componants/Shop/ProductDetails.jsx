@@ -224,7 +224,7 @@ const ProductDetails = () => {
           {/* Product Info Section */}
           <Grid item xs={12} md={6}>
             <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h4" gutterBottom>
+              <Typography variant="h4" sx={{ color: 'white' }} gutterBottom>
                 {product.name}
               </Typography>
 
@@ -242,11 +242,11 @@ const ProductDetails = () => {
                 sx={{ alignSelf: 'flex-start', mb: 2 }}
               />
 
-              <Typography variant="h5" color="primary" gutterBottom>
+              <Typography variant="h5" sx={{ color: 'white' }} gutterBottom>
                 ${product.price.toFixed(2)}
               </Typography>
 
-              <Typography variant="body1" paragraph>
+              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)' }} paragraph>
                 {product.description}
               </Typography>
 
@@ -316,7 +316,9 @@ const ProductDetails = () => {
       {/* Reviews Section */}
       <Paper elevation={0} sx={{ p: 3, mt: 4, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6">Reviews ({product.reviews?.length || 0})</Typography>
+          <Typography variant="h6" sx={{ color: 'white' }} gutterBottom>
+            Reviews ({product.reviews?.length || 0})
+          </Typography>
           <Button 
             variant="contained" 
             onClick={() => setOpenReviewDialog(true)}

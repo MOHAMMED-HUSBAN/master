@@ -117,118 +117,232 @@ const Cart = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        سلة التسوق
-      </Typography>
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-800 via-gray-800 to-gray-900">
+      <div className="h-20"></div>
 
-      {cartItems.length === 0 ? (
-        <Box textAlign="center" py={4}>
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            السلة فارغة
-          </Typography>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={() => navigate('/shop')}
-            sx={{ mt: 2 }}
-          >
-            تسوق الآن
-          </Button>
-        </Box>
-      ) : (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
-            {cartItems.map((item) => (
-              <Card key={item._id} sx={{ mb: 2 }}>
-                <CardContent>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={3}>
-                      <img 
-                        src={item.product.image} 
-                        alt={item.product.name}
-                        style={{ width: '100%', maxWidth: '100px', height: 'auto' }}
-                      />
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography variant="h4" sx={{ color: 'white', mb: 6, textAlign: 'center' }}>
+          Shopping Cart
+        </Typography>
+
+        {cartItems.length === 0 ? (
+          <Box sx={{ 
+            textAlign: 'center', 
+            py: 8,
+            background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(128,128,128,0.1))',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 2,
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <Typography variant="h6" sx={{ color: 'white', mb: 3 }}>
+              Your cart is empty
+            </Typography>
+            <Button 
+              variant="contained" 
+              onClick={() => navigate('/shop')}
+              sx={{ 
+                background: 'linear-gradient(to right, rgba(128,128,128,0.3), rgba(64,64,64,0.3))',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  background: 'linear-gradient(to right, rgba(128,128,128,0.4), rgba(64,64,64,0.4))'
+                }
+              }}
+            >
+              Continue Shopping
+            </Button>
+          </Box>
+        ) : (
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={8}>
+              {cartItems.map((item) => (
+                <Card key={item._id} sx={{ 
+                  mb: 3,
+                  background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(128,128,128,0.1))',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 2
+                }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Grid container spacing={3} alignItems="center">
+                      <Grid item xs={12} sm={4}>
+                        <Box sx={{ 
+                          position: 'relative',
+                          paddingTop: '100%',
+                          borderRadius: 2,
+                          overflow: 'hidden',
+                          border: '1px solid rgba(255, 255, 255, 0.1)'
+                        }}>
+                          <img 
+                            src={item.product.image} 
+                            alt={item.product.name}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover'
+                            }}
+                          />
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} sm={8}>
+                        <Box sx={{ pl: { sm: 2 } }}>
+                          <Typography variant="h6" sx={{ color: 'white', mb: 1 }}>
+                            {item.product.name}
+                          </Typography>
+                          <Typography sx={{ color: 'rgba(255,255,255,0.7)', mb: 2 }}>
+                            ${item.product.price}
+                          </Typography>
+                          
+                          <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            gap: 2,
+                            mb: 2
+                          }}>
+                            <IconButton 
+                              onClick={() => handleQuantityChange(item._id, item.quantity, -1)}
+                              sx={{ 
+                                color: 'white',
+                                bgcolor: 'rgba(255,255,255,0.1)',
+                                '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+                              }}
+                            >
+                              <RemoveIcon />
+                            </IconButton>
+                            <Typography sx={{ color: 'white', mx: 2 }}>
+                              {item.quantity}
+                            </Typography>
+                            <IconButton 
+                              onClick={() => handleQuantityChange(item._id, item.quantity, 1)}
+                              sx={{ 
+                                color: 'white',
+                                bgcolor: 'rgba(255,255,255,0.1)',
+                                '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+                              }}
+                            >
+                              <AddIcon />
+                            </IconButton>
+                          </Box>
+
+                          <Box sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <Typography variant="h6" sx={{ color: 'white' }}>
+                              ${(item.product.price * item.quantity).toFixed(2)}
+                            </Typography>
+                            <IconButton 
+                              onClick={() => handleRemoveItem(item._id)}
+                              sx={{ 
+                                color: 'rgba(255,0,0,0.7)',
+                                '&:hover': { color: 'rgba(255,0,0,0.9)' }
+                              }}
+                            >
+                              <DeleteOutlineIcon />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <Typography variant="h6">{item.product.name}</Typography>
-                      <Typography color="textSecondary">
-                        ${item.product.price}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <Box display="flex" alignItems="center">
-                        <IconButton 
-                          onClick={() => handleQuantityChange(item._id, item.quantity, -1)}
-                        >
-                          <RemoveIcon />
-                        </IconButton>
-                        <Typography sx={{ mx: 2 }}>{item.quantity}</Typography>
-                        <IconButton 
-                          onClick={() => handleQuantityChange(item._id, item.quantity, 1)}
-                        >
-                          <AddIcon />
-                        </IconButton>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <Typography variant="subtitle1">
-                        ${(item.product.price * item.quantity).toFixed(2)}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={12} container justifyContent="flex-end">
-                      <IconButton 
-                        onClick={() => handleRemoveItem(item._id)}
-                        color="error"
-                      >
-                        <DeleteOutlineIcon />
-                      </IconButton>
-                    </Grid>
-                  </Grid>
+                  </CardContent>
+                </Card>
+              ))}
+            </Grid>
+            
+            <Grid item xs={12} md={4}>
+              <Card sx={{ 
+                background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(128,128,128,0.1))',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: 2,
+                position: 'sticky',
+                top: '100px'
+              }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ color: 'white', mb: 3 }}>
+                    Order Summary
+                  </Typography>
+                  <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', mb: 3 }} />
+                  
+                  <Box sx={{ mb: 3 }}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      mb: 2,
+                      color: 'rgba(255,255,255,0.7)'
+                    }}>
+                      <Typography>Subtotal</Typography>
+                      <Typography>${calculateTotal()}</Typography>
+                    </Box>
+
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      mb: 2,
+                      color: 'rgba(255,255,255,0.7)'
+                    }}>
+                      <Typography>Shipping</Typography>
+                      <Typography>Free</Typography>
+                    </Box>
+
+                    <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', my: 2 }} />
+
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      color: 'white',
+                      fontWeight: 'bold'
+                    }}>
+                      <Typography>Total</Typography>
+                      <Typography>${calculateTotal()}</Typography>
+                    </Box>
+                  </Box>
+
+                  <Button 
+                    variant="contained" 
+                    fullWidth 
+                    onClick={handleCheckout}
+                    sx={{
+                      background: 'linear-gradient(to right, rgba(128,128,128,0.3), rgba(64,64,64,0.3))',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      py: 1.5,
+                      '&:hover': {
+                        background: 'linear-gradient(to right, rgba(128,128,128,0.4), rgba(64,64,64,0.4))'
+                      }
+                    }}
+                  >
+                    Proceed to Checkout
+                  </Button>
                 </CardContent>
               </Card>
-            ))}
+            </Grid>
           </Grid>
-          
-          <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  ملخص الطلب
-                </Typography>
-                <Divider sx={{ my: 2 }} />
-                <Box display="flex" justifyContent="space-between" mb={2}>
-                  <Typography>المجموع:</Typography>
-                  <Typography>${calculateTotal()}</Typography>
-                </Box>
-                <Button 
-                  variant="contained" 
-                  color="primary" 
-                  fullWidth 
-                  onClick={handleCheckout}
-                >
-                  إتمام الشراء
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      )}
+        )}
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
-          severity={snackbar.severity}
-          variant="filled"
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Container>
+          <Alert 
+            onClose={() => setSnackbar({ ...snackbar, open: false })} 
+            severity={snackbar.severity}
+            variant="filled"
+            sx={{ 
+              bgcolor: snackbar.severity === 'success' ? 'rgba(46, 125, 50, 0.9)' : 'rgba(211, 47, 47, 0.9)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Container>
+    </div>
   );
 };
 

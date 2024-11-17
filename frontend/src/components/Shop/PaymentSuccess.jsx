@@ -114,11 +114,11 @@ const PaymentSuccess = () => {
           color="success"
           sx={{ fontSize: 60, mb: 2 }}
         />
-        <Typography variant="h5" gutterBottom>
-          تم الدفع بنجاح!
+        <Typography variant="h5" sx={{ color: 'white' }} gutterBottom>
+          Payment Successful!
         </Typography>
-        <Typography color="textSecondary" paragraph>
-          شكراً لك على الشراء. سيتم معالجة طلبك قريباً.
+        <Typography sx={{ color: 'rgba(255,255,255,0.8)' }} paragraph>
+          Thank you for your purchase. Your order will be processed soon.
         </Typography>
         <Box sx={{ mt: 3 }}>
           <Button
@@ -127,13 +127,13 @@ const PaymentSuccess = () => {
             onClick={handleContinueShopping}
             sx={{ mr: 2 }}
           >
-            متابعة التسوق
+            Continue Shopping
           </Button>
           <Button
             variant="outlined"
             onClick={() => navigate('/profile')}
           >
-            عرض الطلبات
+            View Orders
           </Button>
         </Box>
       </Paper>

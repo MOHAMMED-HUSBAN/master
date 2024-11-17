@@ -1,80 +1,19 @@
-// import React, { useState } from 'react';
-// import { useDispatch } from 'react-redux';
-// import { login, loginWithGoogle, loginWithFacebook } from '../../slice/authSlice';
-// import { useNavigate } from 'react-router-dom';
-
-// const Login = () => {
-//   const [formData, setFormData] = useState({
-//     email: '',
-//     password: '',
-//   });
-
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({ ...formData, [name]: value });
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     const resultAction = await dispatch(login(formData));
-//     if (login.fulfilled.match(resultAction)) {
-//       navigate('/');
-//     }
-//   };
-
-//   const handleGoogleLogin = async () => {
-//     await dispatch(loginWithGoogle());
-//     navigate('/'); // Redirect to home after successful Google login
-//   };
-
-//   const handleFacebookLogin = async () => {
-//     await dispatch(loginWithFacebook());
-//     navigate('/'); // Redirect to home after successful Facebook login
-//   };
-
-//   return (
-//     <div>
-//       <form onSubmit={handleSubmit}>
-//         <input type="email" name="email" onChange={handleChange} placeholder="Email" required />
-//         <input type="password" name="password" onChange={handleChange} placeholder="Password" required />
-//         <button type="submit">Login</button>
-//       </form>
-      
-//       <p>
-//         You don't have an account? 
-//         <button onClick={() => navigate('/signup')} style={{ marginLeft: '5px', cursor: 'pointer' }}>
-//           Sign Up
-//         </button>
-//       </p>
-      
-//       <button onClick={handleGoogleLogin}>Login with Google</button>
-//       <button onClick={handleFacebookLogin}>Login with Facebook</button>
-//     </div>
-//   );
-// };
-
-// export default Login;
-
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { login, loginWithGoogle, loginWithFacebook } from '../../slice/authSlice';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 
-const Input = ({ id, type, name, placeholder, value, onChange, className, required }) => (
-  <input
-    id={id}
-    type={type}
-    name={name}
-    placeholder={placeholder}
-    value={value}
-    onChange={onChange}
-    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
-    required={required}
-  />
+const Input = ({ icon: Icon, ...props }) => (
+  <div className="relative">
+    {Icon && <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />}
+    <input
+      {...props}
+      className={`w-full px-3 py-3 pl-10 bg-gray-800/50 border border-gray-700 rounded-lg 
+      text-white placeholder-gray-500 focus:border-gray-500 focus:ring-1 focus:ring-gray-500 
+      transition-all duration-200 ${props.className}`}
+    />
+  </div>
 );
 
 const Button = ({ type, onClick, className, children }) => (
@@ -122,89 +61,72 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-2xl font-bold text-center mb-2">Welcome Back</h2>
-        <p className="text-center text-gray-600 mb-6">Login to your account</p>
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-black flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-gradient-to-b from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-800">
+        <div className="text-center mb-8">
+          <img
+            src="/src/assets/favicon.png"
+            alt="Alsharq Academy"
+            className="mx-auto h-24 w-auto mb-4"
+          />
+          <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+          <p className="text-gray-400">Sign in to your account</p>
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                className="pl-10"
-                required
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                className="pl-10 pr-10"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
-          <Button type="submit" className="w-full flex items-center justify-center">
-            <LogIn className="mr-2" size={18} />
-            Login
-          </Button>
+          <Input
+            icon={Mail}
+            type="email"
+            placeholder="Email address"
+            required
+          />
+          
+          <Input
+            icon={Lock}
+            type="password"
+            placeholder="Password"
+            required
+          />
+
+          <button className="w-full py-3 px-4 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 
+                           hover:to-gray-600 text-white rounded-lg font-medium transition-all duration-200 
+                           transform hover:-translate-y-0.5">
+            Sign In
+          </button>
         </form>
         
         {error && (
-          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mt-4 p-3 bg-red-900/50 border border-red-800 text-red-200 rounded-lg">
             {error}
           </div>
         )}
         
-        <div className="mt-6">
+        <div className="mt-8">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-gray-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              <span className="px-2 bg-gray-900 text-gray-400">Or continue with</span>
             </div>
           </div>
           
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <Button onClick={() => handleSocialLogin(loginWithGoogle)} className="bg-red-500 hover:bg-red-600">
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <Button onClick={() => handleSocialLogin(loginWithGoogle)} 
+                    className="bg-gray-800 hover:bg-gray-700 text-white">
               Google
             </Button>
-            <Button onClick={() => handleSocialLogin(loginWithFacebook)} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={() => handleSocialLogin(loginWithFacebook)} 
+                    className="bg-gray-800 hover:bg-gray-700 text-white">
               Facebook
             </Button>
           </div>
         </div>
         
-        <p className="mt-8 text-center text-sm text-gray-600">
+        <p className="mt-8 text-center text-sm text-gray-400">
           Don't have an account?{' '}
-          <button
-            onClick={() => navigate('/signup')}
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
+          <button onClick={() => navigate('/signup')} 
+                  className="font-medium text-white hover:text-gray-300">
             Sign Up
           </button>
         </p>

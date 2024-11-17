@@ -85,7 +85,7 @@ const FavoriteProducts = () => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
+        <CircularProgress sx={{ color: 'white' }} />
       </Box>
     );
   }
@@ -95,21 +95,31 @@ const FavoriteProducts = () => {
       <Box sx={{ 
         textAlign: 'center', 
         py: 4,
-        backgroundColor: 'rgba(0, 0, 0, 0.02)',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(10px)',
         borderRadius: 2,
+        border: '1px solid rgba(255, 255, 255, 0.1)',
         p: 3
       }}>
-        <StorefrontIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          لا توجد منتجات في المفضلة
+        <StorefrontIcon sx={{ fontSize: 60, color: 'rgba(255, 255, 255, 0.5)', mb: 2 }} />
+        <Typography variant="h6" sx={{ color: 'white' }} gutterBottom>
+          No favorite products yet
         </Typography>
         <Button 
           variant="contained" 
           onClick={() => navigate('/shop')}
-          sx={{ mt: 2 }}
+          sx={{ 
+            mt: 2,
+            background: 'linear-gradient(to right, rgba(128,128,128,0.3), rgba(64,64,64,0.3))',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            '&:hover': {
+              background: 'linear-gradient(to right, rgba(128,128,128,0.4), rgba(64,64,64,0.4))'
+            }
+          }}
           startIcon={<ShoppingCartIcon />}
         >
-          تصفح المتجر
+          Browse Shop
         </Button>
       </Box>
     );
@@ -126,12 +136,13 @@ const FavoriteProducts = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
-                transition: 'transform 0.2s, box-shadow 0.2s',
+                transition: 'all 0.3s ease',
                 '&:hover': {
                   transform: 'translateY(-4px)',
-                  boxShadow: 4,
                 },
-                cursor: 'pointer',
+                background: 'linear-gradient(to bottom, rgba(128,128,128,0.1), rgba(64,64,64,0.1))',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: 2
               }}
               onClick={() => navigate(`/product/${product._id}`)}
@@ -153,51 +164,58 @@ const FavoriteProducts = () => {
                     gap: 1
                   }}
                 >
-                  <Tooltip title="إزالة من المفضلة">
+                  <Tooltip title="Remove from favorites">
                     <IconButton
                       size="small"
                       sx={{
-                        bgcolor: 'rgba(255, 255, 255, 0.9)',
-                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 1)' }
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' }
                       }}
                       onClick={(e) => handleRemoveFromFavorites(product._id, e)}
                     >
-                      <FavoriteIcon color="error" fontSize="small" />
+                      <FavoriteIcon sx={{ color: 'white' }} fontSize="small" />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="إضافة إلى السلة">
+                  <Tooltip title="Add to cart">
                     <IconButton
                       size="small"
                       sx={{
-                        bgcolor: 'rgba(255, 255, 255, 0.9)',
-                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 1)' }
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' }
                       }}
                       onClick={(e) => handleAddToCart(product._id, e)}
                     >
-                      <ShoppingCartIcon color="primary" fontSize="small" />
+                      <ShoppingCartIcon sx={{ color: 'white' }} fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 </Box>
               </Box>
               <CardContent sx={{ flexGrow: 1, p: 2 }}>
                 <Stack spacing={1}>
-                  <Typography variant="subtitle1" noWrap>
+                  <Typography variant="subtitle1" sx={{ color: 'white' }} noWrap>
                     {product.name}
                   </Typography>
-                  <Typography variant="h6" color="primary">
+                  <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)' }}>
                     ${product.price.toFixed(2)}
                   </Typography>
                   <Rating 
                     value={product.averageRating || 0} 
                     readOnly 
                     size="small"
-                    precision={0.5}
+                    sx={{ color: 'rgba(255,255,255,0.7)' }}
                   />
                   {product.category && (
                     <Chip 
                       label={product.category}
                       size="small"
-                      sx={{ alignSelf: 'flex-start' }}
+                      sx={{ 
+                        alignSelf: 'flex-start',
+                        bgcolor: 'rgba(255,255,255,0.1)',
+                        color: 'white',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                      }}
                     />
                   )}
                 </Stack>
@@ -217,7 +235,11 @@ const FavoriteProducts = () => {
           onClose={handleCloseSnackbar} 
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ 
+            bgcolor: snackbar.severity === 'success' ? 'rgba(46, 125, 50, 0.9)' : 'rgba(211, 47, 47, 0.9)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}
         >
           {snackbar.message}
         </Alert>
