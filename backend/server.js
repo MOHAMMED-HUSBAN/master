@@ -13,6 +13,8 @@ const productRoutes = require('./src/routes/productRoutes');
 const cartRoutes = require('./src/routes/cartRoutes');
 const eventRoutes = require('./src/routes/eventRoutes');
 const contactRoutes = require('./src/routes/contactRoutes');
+const stripeRoutes = require('./src/routes/stripeRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
 
 const subscriptionRoutes = require('./src/routes/subscriptionRoutes');
 const app = express();
@@ -25,6 +27,10 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
   credentials: true,
 }));
+
+// Stripe webhook should be before the express.json() middleware
+app.use('/api/webhook', stripeRoutes);
+app.use('/api', stripeRoutes);
 
 // MongoDB connection
 const mongoURI = process.env.MONGO_URI;
@@ -55,6 +61,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/WhatWeOffer2', WhatWeOffer2Routes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Sample route
 app.get("/", (req, res) => {

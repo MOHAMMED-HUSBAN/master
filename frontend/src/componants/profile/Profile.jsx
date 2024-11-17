@@ -1,114 +1,39 @@
-
-// // Frontend: New Profile component (components/Profile.js)
-// import React, { useState, useEffect } from 'react';
-// import { useSelector, useDispatch } from 'react-redux';
-// import { getProfile, updateProfile } from '../../slice/profileSlice';
-
-// const Profile = () => {
-//   const dispatch = useDispatch();
-//   const { user, loading, error } = useSelector((state) => state.profile);
-//   const [formData, setFormData] = useState({
-//     username: '',
-//     phonenumber: '',
-//     image: '',
-//   });
-
-//   useEffect(() => {
-//     dispatch(getProfile());
-//   }, [dispatch]);
-
-//   useEffect(() => {
-//     if (user) {
-//       setFormData({
-//         username: user.username || '',
-//         phonenumber: user.phonenumber || '',
-//         image: user.image || '',
-//       });
-//     }
-//   }, [user]);
-
-//   const handleChange = (e) => {
-//     setFormData({ ...formData, [e.target.name]: e.target.value });
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     dispatch(updateProfile(formData));
-//   };
-
-//   if (loading) return <div>Loading...</div>;
-//   if (error) return <div>Error: {error}</div>;
-//   if (!user) return <div>No user data available</div>;
-
-//   return (
-//     <div>
-//       <h2>Profile</h2>
-//       <form onSubmit={handleSubmit}>
-//         <div>
-//           <label htmlFor="username">Username:</label>
-//           <input
-//             type="text"
-//             id="username"
-//             name="username"
-//             value={formData.username}
-//             onChange={handleChange}
-//           />
-//         </div>
-//         <div>
-//           <label htmlFor="phonenumber">Phone Number:</label>
-//           <input
-//             type="text"
-//             id="phonenumber"
-//             name="phonenumber"
-//             value={formData.phonenumber}
-//             onChange={handleChange}
-//           />
-//         </div>
-//         <div>
-//           <label htmlFor="image">Profile Image URL:</label>
-//           <input
-//             type="text"
-//             id="image"
-//             name="image"
-//             value={formData.image}
-//             onChange={handleChange}
-//           />
-//         </div>
-//         <button type="submit">Update Profile</button>
-//       </form>
-//       <div>
-//         <h3>Current Profile Information</h3>
-//         <p>Email: {user.email}</p>
-//         <p>Username: {user.username}</p>
-//         <p>Phone Number: {user.phonenumber}</p>
-//         <p>Provider: {user.provider}</p>
-//         {user.image && <img src={user.image} alt="Profile" style={{ width: '100px', height: '100px' }} />}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Profile;
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Container, Box, Typography, Paper } from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 import { getProfile, updateProfile, getUserPrograms } from '../../slice/profileSlice';
 import { getUserEvents } from '../../slice/eventSlice';
-
+import FavoriteProducts from './FavoriteProducts';
+import OrderHistory from '../../components/profile/OrderHistory';
 const Profile = () => {
   const dispatch = useDispatch();
   const { user, userPrograms, loading, error } = useSelector((state) => state.profile);  
+  const { userEvents } = useSelector((state) => state.events);
   const [formData, setFormData] = useState({
     username: '',
     phonenumber: '',
     image: '',
   });
   const [formErrors, setFormErrors] = useState({});
-  const [darkMode, setDarkMode] = useState(false); // Dark mode state
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    dispatch(getProfile());
-    dispatch(getUserPrograms());
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          dispatch(getProfile()),
+          dispatch(getUserPrograms()),
+          dispatch(getUserEvents())
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
   }, [dispatch]);
 
   useEffect(() => {
@@ -148,127 +73,180 @@ const Profile = () => {
     setDarkMode(!darkMode);
   };
 
-  useEffect(() => {
-    dispatch(getProfile());
-    dispatch(getUserPrograms());
-    dispatch(getUserEvents());
-  }, [dispatch]);
-
-  const { userEvents } = useSelector((state) => state.events);
-
-
   if (loading) return <div className="text-center text-gray-500">Loading...</div>;
   if (error) return <div className="text-center text-red-500">Error: {error}</div>;
   if (!user) return <div className="text-center">No user data available</div>;
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-      <div className="max-w-4xl w-full p-6 rounded-lg shadow-md flex flex-col lg:flex-row">
-      <div className="lg:w-1/2 p-4">
-          <h2 className="text-2xl font-bold mb-4 text-center">Profile Information</h2>
-          {user.image && (
-            <img src={user.image} alt="Profile" className="mt-4 w-24 h-24 rounded-full object-cover" />
-          )}
-              <p className="mt-2">Username: <span className="font-medium">{user.username}</span></p>
-          <p className="mt-1">Email: <span className="font-medium">{user.email}</span></p>
-      
-          <p className="mt-1">Phone Number: <span className="font-medium">{user.phonenumber}</span></p>
-        
-        </div>
-
-
-         
-        {/* New section for registered programs */}
-        <div className="lg:w-1/2 p-4">
-          <h2 className="text-2xl font-bold mb-4 text-center">Registered Programs</h2>
-          {userPrograms.length > 0 ? (
-            <ul>
-              {userPrograms.map((registration) => (
-                <li key={registration._id} className="mb-2">
-                  <strong>{registration.program.name}</strong> - Registered on: {new Date(registration.createdAt).toLocaleDateString()}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No programs registered yet.</p>
-          )}
-        </div>
-
-         {/* New section for joined events */}
-         <div className="lg:w-1/2 p-4">
-          <h2 className="text-2xl font-bold mb-4 text-center">Joined Events</h2>
-          {userEvents.length > 0 ? (
-            <ul>
-              {userEvents.map((event) => (
-                <li key={event._id} className="mb-2">
-                   <img src={event.image} alt={event.title} className="event-img" />
-                  <h1>{event.title}</h1>
-                  <p>Date: {event.date}</p> 
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No events joined yet.</p>
-          )}
-        </div>
-        {/* Left Section - Form */}
-        <div className="lg:w-1/2 p-4">
-          <h2 className="text-2xl font-bold mb-4 text-center">Edit Profile</h2>
-          <button
-            onClick={toggleDarkMode}
-            className="mb-4 py-2 px-4 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
-          >
-            {darkMode ? 'Light Mode' : 'Dark Mode'}
-          </button>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="username" className="block">Username:</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className={`w-full p-2 border rounded ${formErrors.username ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              {formErrors.username && <p className="text-red-500 text-sm">{formErrors.username}</p>}
+    <Container>
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+        <div className="container mx-auto py-8 px-4">
+          {/* Hero Section */}
+          <div className={`rounded-xl p-6 mb-8 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="relative">
+                {user.image && (
+                  <img 
+                    src={user.image} 
+                    alt="Profile" 
+                    className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-blue-500 shadow-xl" 
+                  />
+                )}
+                <button 
+                  onClick={toggleDarkMode}
+                  className="absolute -bottom-2 -right-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition shadow-lg"
+                >
+                  {darkMode ? '🌞' : '🌙'}
+                </button>
+              </div>
+              <div className="text-center md:text-left">
+                <h1 className="text-3xl font-bold mb-2">{user.username}</h1>
+                <p className="text-gray-500 dark:text-gray-400">{user.email}</p>
+                <p className="text-gray-500 dark:text-gray-400">{user.phonenumber}</p>
+              </div>
             </div>
-            <div className="mb-4">
-              <label htmlFor="phonenumber" className="block">Phone Number:</label>
-              <input
-                type="text"
-                id="phonenumber"
-                name="phonenumber"
-                value={formData.phonenumber}
-                onChange={handleChange}
-                className={`w-full p-2 border rounded ${formErrors.phonenumber ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              {formErrors.phonenumber && <p className="text-red-500 text-sm">{formErrors.phonenumber}</p>}
-            </div>
-            <div className="mb-4">
-              <label htmlFor="image" className="block">Profile Image URL:</label>
-              <input
-                type="text"
-                id="image"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                className={`w-full p-2 border rounded ${formErrors.image ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              {formErrors.image && <p className="text-red-500 text-sm">{formErrors.image}</p>}
-            </div>
-            <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition">
-              Update Profile
-            </button>
-          </form>
-        </div>
+          </div>
 
-        
-        
-        {/* Right Section - Current Info */}
-     
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Edit Profile Section */}
+            <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+              <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium mb-1">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className={`w-full p-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} 
+                      focus:ring-2 focus:ring-blue-500 focus:border-transparent transition`}
+                  />
+                  {formErrors.username && <p className="text-red-500 text-sm mt-1">{formErrors.username}</p>}
+                </div>
+                
+                <div>
+                  <label htmlFor="phonenumber" className="block text-sm font-medium mb-1">Phone Number</label>
+                  <input
+                    type="text"
+                    id="phonenumber"
+                    name="phonenumber"
+                    value={formData.phonenumber}
+                    onChange={handleChange}
+                    className={`w-full p-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} 
+                      focus:ring-2 focus:ring-blue-500 focus:border-transparent transition`}
+                  />
+                  {formErrors.phonenumber && <p className="text-red-500 text-sm mt-1">{formErrors.phonenumber}</p>}
+                </div>
+
+               
+
+                <button 
+                  type="submit" 
+                  className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                >
+                  Update Profile
+                </button>
+              </form>
+            </div>
+
+            {/* Programs Section */}
+            <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+              <h2 className="text-xl font-bold mb-4">Registered Programs</h2>
+              {userPrograms.length > 0 ? (
+                <div className="space-y-4">
+                  {userPrograms.map((registration) => (
+                    <div 
+                      key={registration._id} 
+                      className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} hover:shadow-md transition`}
+                    >
+                      <h3 className="font-semibold">{registration.program.name}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Registered: {new Date(registration.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400">No programs registered yet.</p>
+              )}
+            </div>
+
+            {/* Events Section */}
+            <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+              <h2 className="text-xl font-bold mb-4">Joined Events</h2>
+              {userEvents.length > 0 ? (
+                <div className="space-y-4">
+                  {userEvents.map((event) => (
+                    <div 
+                      key={event._id} 
+                      className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} hover:shadow-md transition`}
+                    >
+                      <img 
+                        src={event.image} 
+                        alt={event.title} 
+                        className="w-full h-32 object-cover rounded-lg mb-3"
+                      />
+                      <h3 className="font-semibold">{event.title}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {event.date}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400">No events joined yet.</p>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+      
+      <Box sx={{ mt: 4 }}>
+        <Typography 
+          variant="h5" 
+          gutterBottom 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1,
+            mb: 3
+          }}
+        >
+          <FavoriteIcon color="error" />
+          المنتجات المفضلة
+        </Typography>
+        <Paper 
+          elevation={0} 
+          sx={{ 
+            p: 3, 
+            backgroundColor: 'background.paper',
+            borderRadius: 2
+          }}
+        >
+          <FavoriteProducts />
+        </Paper>
+      </Box>
+
+      <Box sx={{ mt: 4 }}>
+        <Typography 
+          variant="h5" 
+          gutterBottom 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1,
+            mb: 3
+          }}
+        >
+          <LocalShippingIcon />
+          سجل الطلبات
+        </Typography>
+        <OrderHistory />
+      </Box>
+    </Container>
   );
 };
 

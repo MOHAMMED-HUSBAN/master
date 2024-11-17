@@ -5,6 +5,8 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { fetchProducts, fetchProductsByCategory } from '../../slice/productSlice';
 import { addToCart } from '../../slice/cartSlice';
+import { useNavigate } from 'react-router-dom';
+import { decodeToken } from '../../utils/tokenUtils';
 
 const ProductGrid = () => {
   const dispatch = useDispatch();
@@ -14,6 +16,7 @@ const ProductGrid = () => {
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [category, setCategory] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -42,8 +45,20 @@ const ProductGrid = () => {
   };
 
   
-  const handleAddToCart = (productId) => {
-    dispatch(addToCart({ productId, quantity: 1 }));
+  const handleAddToCart = async (productId) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      console.log('Adding product to cart:', productId);
+      await dispatch(addToCart({ productId: productId.toString(), quantity: 1 })).unwrap();
+      console.log('Product added to cart successfully');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   };
 
   const filteredProducts = products.filter((product) => 
@@ -118,17 +133,21 @@ const ProductGrid = () => {
           <Grid container spacing={2}>
             {paginatedProducts.map((product) => (
               <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
-                <Card sx={{ 
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
-                  },
-                  width: '100%',
-                  maxWidth: 300,
-                  margin: 'auto',
-                }}>
+                <Card 
+                  sx={{ 
+                    cursor: 'pointer',
+                    transition: 'transform 0.3s, box-shadow 0.3s',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
+                    },
+                    width: '100%',
+                    maxWidth: 300,
+                    margin: 'auto',
+                  }}
+                  onClick={() => navigate(`/product/${product._id}`)}
+                >
                   <CardMedia
                     component="img"
                     alt={product.name}
@@ -151,7 +170,10 @@ const ProductGrid = () => {
                       variant="contained"
                       color="secondary" 
                       sx={{ mt: 2 }}
-                      onClick={() => handleAddToCart(product.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(product._id);
+                      }}
                       startIcon={<ShoppingCartIcon />}
                     >
                       Add to Cart

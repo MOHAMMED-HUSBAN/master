@@ -15,7 +15,6 @@ import Eventslider from "./componants/Eventslider/Eventslider";
 import WhatWeOffer from "./componants/WhatWeOffer/WhatWeOffer";
 import ProgramsPage from "./componants/ProgramsPage/ProgramsPage";
 import Shop from "./componants/Shop/ShopPage";
-import News from "./componants/Newspage/News";
 import Cart from "./componants/Shop/Cart";
 import video from "./componants/VideoLessons";
 
@@ -35,6 +34,8 @@ import ErrorBoundary from '../hu';
 import { Provider } from 'react-redux';
 import store  from '../src/store/store';  // استخدم import مباشر بدلاً من default import
 import ContactUs from './componants/ContactUs';
+import ProductDetails from "./componants/Shop/ProductDetails";
+import PaymentSuccess from './components/Shop/PaymentSuccess';
 
 function App() {
   const paypalOptions = {
@@ -104,16 +105,7 @@ function App() {
                 </>
               }
             />
-            <Route
-              path="/news"
-              element={
-                <>
-                  <Header />
-                  <News />
-                  <Footer />
-                </>
-              }
-            />
+           
             <Route
               path="/Program"
               element={
@@ -184,6 +176,17 @@ function App() {
                 <>
                   <Header />
                   <ContactUs />
+                  <Footer />
+                </>
+              }
+            />
+            <Route path="/product/:productId" element={<ProductDetails />} />
+            <Route
+              path="/payment-success"
+              element={
+                <>
+                  <Header />
+                  <PaymentSuccess />
                   <Footer />
                 </>
               }
